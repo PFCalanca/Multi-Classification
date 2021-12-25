@@ -1,0 +1,121 @@
+import streamlit as st
+import pandas as pd
+import pydeck as pdk
+import numpy as np
+import tensorflow as tf
+from keras.models import model_from_json
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from tensorflow.keras import utils as np_utils
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense
+import os
+from keras.wrappers.scikit_learn import KerasClassifier
+from keras.utils import np_utils
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import LabelEncoder
+from sklearn.pipeline import Pipeline
+
+
+DATA_URL = "Eleicao.csv"
+#Definindo cada coluna da variaveis explicativas (x) um sidebar
+def user_input_features(dataa):
+    m_dados = "Eleicao.csv"
+    colunas = m_dados.columns
+    dataa = pd.DataFrame(dataa, columns=colunas)
+    columns = st.sidebar.multiselect("Enter the variables", dataa.columns)
+
+    sidebars = {}
+    for y in columns:
+        ucolumns=list(dataa[y].unique())
+        print (ucolumns)
+
+        sidebars[y]=st.sidebar.multiselect('Filter '+y, ucolumns)   
+
+    if bool(sidebars):
+        L = [dataa[k].isin(v) if isinstance(v, list) 
+            else dataa[k].eq(v) 
+            for k, v in sidebars.items() if k in dataa.columns]
+        
+        df1 = dataa[np.logical_and.reduce(L)]
+        st.table(df1)  
+    return pd.DataFrame(df1, index=[0])
+@st.cache(allow_output_mutation=True)
+#Renomeando as colunas para uma melhor estetica 
+
+
+def load_data():
+    m_dados = pd.read_csv('Eleicao.csv')
+    
+    #columns = {
+        
+    #}
+ #   data = data.rename(columns=columns)
+
+    dados_final = m_dados.values
+    X = dados_final[:,0:161].astype('float32')
+    Y=dados_final[:,161]
+    encoder = LabelEncoder()
+    encoder.fit(Y)
+    encoded_Y = encoder.transform(Y)
+    dummy_y = np_utils.to_categorical(encoded_Y)
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X_scale = min_max_scaler.fit_transform(X)
+    X_train, X_val_and_test, Y_train, Y_val_and_test = train_test_split(X_scale, dummy_y, test_size=0.3)
+    X_val, X_test, Y_val, Y_test = train_test_split(X_val_and_test, Y_val_and_test, test_size=0.5)
+    return (X_train, Y_train)
+
+def modelo(X_train, Y_train):
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+
+    loaded_model.load_weights("model.h5")
+    loaded_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model = loaded_model.evaluate(X_train, Y_train, verbose=0)
+    return model
+
+def main():
+    X_train, Y_train = load_data()
+
+    st.write("""
+    # Predição de AVC
+    # """)
+    st.write('---')
+
+    model = modelo(X_train,Y_train)
+    st.sidebar.header('Escolha de paramentros para Predição')
+    
+    User_r = user_input_features(X_train)
+
+    st.header('Parametros especificados')
+    st.write(User_r)
+    prediction = model.predict(User_r)
+
+    st.subheader(' Previsto')
+    st.write(prediction)
+    st.write('---')
+def plot_count_keyword(df1):       
+    kw_count_sender_selectbox = [st.sidebar.selectbox(
+        "Senders", df1["sender"].unique())] # Dropdown box to select sender
+    kw_count_keyword_selectbox = [st.sidebar.selectbox(
+        "Keywords", df1["Keywords"].unique())] # Dropdown box to select the keyword
+
+    
+    df_kw_count_selected_sender = df1[df1['sender'].isin(kw_count_sender_selectbox)]
+    df_kw_count_selected_keyword = df_kw_count_selected_sender[df_kw_count_selected_sender['keyword'].isin(kw_count_keyword_selectbox)] 
+
+    df_kw_count_selected_keyword.groupby(['mail_date']).sum().plot()
+    plt.show()    
+    st.pyplot(fig=plt)
+    plot_count_keyword(df1)
+
+st.sidebar.markdown(""" A base de dados mostra informações de um estudo para prevenção de Acidente Vascular Cerebral """)
+st.sidebar.markdown(""" OBSERVAÇÃO IMPORTANTE: O resultado não sera muito bom, pois pelo mesmo motivo que na P1 notei que dataset não estava muito legal( depois de ver a nota), aqui na visualização ficou pior ainda, pois existe um desequilibrio muito grande entre os dados deram AVC e os que não deram.
+ """)
+
+if __name__=='__main__':
+    main()
