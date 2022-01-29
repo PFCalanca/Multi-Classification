@@ -28,7 +28,7 @@ Multi-Classification_Election/Datasets/nome_dataset.csv ).
  ![Posts](https://github.com/PFCalanca/Multi-Classification_Election/blob/master/readme/datasetsalert.png)
   
 ## Sobre o modelo: 
-![Post show](https://github.com/PFCalanca/Multi-Classification_Election/blob/master/readme/modelo.png)
+![Post show](https://github.com/PFCalanca/Multi-Classification_Election/blob/master/readme/modelop.png)
 
 * O modelo foi feito com 3 camadas densas, aqui precisamos ter muito cuidado, pois numeros de camadas não significa uma acurácia maior, então temos que ter a noção para não ultrapassar nem faltar.
   
