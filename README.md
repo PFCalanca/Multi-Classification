@@ -52,7 +52,7 @@ Multi-Classification_Election/Datasets/nome_dataset.csv ).
 
 
 ## Links
-  - Repository: https://github.com/PFCalanca
+  - Perfil do Linkedin : https://www.linkedin.com/in/paulo-de-freitas-calanca-109906174/
     - Caso você encontre algum erro ou tenha alguma observação, entre em contato.
 
 
