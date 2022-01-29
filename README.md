@@ -1,5 +1,5 @@
 # Multi-Classification_Election
-
+Importante salientar que esses dados foram obtidos em https://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais-1 que são dados públicos onde tem informações voltadas para pesquisadores, imprensa e pessoas interessadas em analisar os dados eleitorais.
 
 ## Sobre o algoritmo
 * Nesse projeto foi feito um modelo de multi-classificação dos candidatos a vereadores de Campos dos Goytacazes se será eleito, não eleito ou suplente.
